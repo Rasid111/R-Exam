@@ -1,25 +1,23 @@
+using R_Exam.Models;
+using R_Exam.Repositories;
+using R_Exam.Repositories.Base;
+using R_Exam.Services;
+using R_Exam.Services.Base;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddControllers();
+
+builder.Services.AddScoped<IQuestionService, QuestionService>();
+builder.Services.AddSingleton<IQuestionRepository, QuestionJSONRepository>();
 
 var app = builder.Build();
-
 
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.UseHttpsRedirection();
-
-app.MapGet("/question", () =>
-{
-    return new {
-        Question = "1 + 1",
-        Answer1 = "1",
-        Answer2 = "2",
-        Answer3 = "3",
-        Answer4 = "4"
-    };
-});
+app.MapControllers();
 
 app.Run();
