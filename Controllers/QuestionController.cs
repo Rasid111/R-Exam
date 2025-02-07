@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using R_Exam.Exceptions;
 using R_Exam.Models;
 using R_Exam.Repositories.Base;
 using R_Exam.Services.Base;
@@ -23,8 +24,15 @@ namespace R_Exam.Controllers
         [ProducesResponseType(400)]
         public ActionResult CreateQuestion([FromBody] Question question)
         {
-            var resultStatus = questionService.CreateQuestion(question);
-            return resultStatus ? base.Ok() : base.BadRequest();
+            try
+            {
+                questionService.CreateQuestion(question);
+            }
+            catch (Exception) // Знаю, что это плохо. Потом валидацию добавлю
+            {
+                return BadRequest();
+            }
+            return Ok();
         }
 
         [HttpGet("{id}")]
@@ -32,17 +40,37 @@ namespace R_Exam.Controllers
         [ProducesResponseType(404)]
         public ActionResult GetQuestion(int id)
         {
-            var question = questionService.GetQuestion(id);
-            return question != null ? base.Ok(question) : base.NotFound();
+            Question question;
+            try
+            {
+                question = questionService.GetQuestion(id);
+            }
+            catch (QuestionNotFoundException)
+            {
+                return NotFound();
+            }
+            return Ok(question);
         }
 
         [HttpPatch("[action]")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
         public ActionResult UpdateQuestion([FromBody] Question question)
         {
-            var resultStatus = questionService.UpdateQuestion(question);
-            return resultStatus ? base.Ok() : base.BadRequest();
+            try
+            {
+                questionService.UpdateQuestion(question);
+            }
+            catch (QuestionNotFoundException)
+            {
+                return NotFound();
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+            return Ok();
         }
 
         [HttpDelete("[action]/{id}")]
@@ -50,8 +78,15 @@ namespace R_Exam.Controllers
         [ProducesResponseType(404)]
         public ActionResult RemoveQuestion(int id)
         {
-            var resultStatus = questionService.DeleteQuestion(id);
-            return resultStatus ? base.Ok() : base.NotFound();
+            try
+            {
+                questionService.DeleteQuestion(id);
+            }
+            catch (QuestionNotFoundException)
+            {
+                return NotFound();
+            }
+            return Ok();
         }
     }
 }

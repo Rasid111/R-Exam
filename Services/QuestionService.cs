@@ -1,4 +1,5 @@
-﻿using R_Exam.Models;
+﻿using R_Exam.Exceptions;
+using R_Exam.Models;
 using R_Exam.Repositories.Base;
 using R_Exam.Services.Base;
 
@@ -13,25 +14,27 @@ namespace R_Exam.Services
             this.repository = repository;
         }
 
-        public bool CreateQuestion(Question question)
+        public void CreateQuestion(Question question)
         {
             this.repository.CreateQuestion(question);
-            return true;
         }
         public Question GetQuestion(int id)
         {
             var question = this.repository.GetQuestion(id);
-            return question;
+
+            return question ?? throw new QuestionNotFoundException();
         }
-        public bool UpdateQuestion(Question question)
+        public void UpdateQuestion(Question question)
         {
-            this.repository.UpdateQuestion(question);
-            return true;
+            var resultStatus = this.repository.UpdateQuestion(question);
+            if (!resultStatus)
+                throw new QuestionNotFoundException();
         }
-        public bool DeleteQuestion(int id)
+        public void DeleteQuestion(int id)
         {
-            this.repository.DeleteQuestion(id);
-            return true;
+            var resultStatus = this.repository.DeleteQuestion(id);
+            if (!resultStatus)
+                throw new QuestionNotFoundException();
         }
     }
 }

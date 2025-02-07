@@ -10,8 +10,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
 
-builder.Services.AddScoped<IQuestionService, QuestionService>();
-builder.Services.AddSingleton<IQuestionRepository, QuestionJSONRepository>();
+builder.Services.AddScoped<IQuestionService>((serviceProvider) => new QuestionService(new QuestionJSONRepository()));
+builder.Services.AddScoped<IQuestionRepository>((serviceProvider) => new QuestionJSONRepository());
 
 var app = builder.Build();
 
