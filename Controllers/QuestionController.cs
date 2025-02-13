@@ -28,8 +28,9 @@ namespace R_Exam.Controllers
             {
                 questionService.CreateQuestion(question);
             }
-            catch (Exception) // Знаю, что это плохо. Потом валидацию добавлю
+            catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 return BadRequest();
             }
             return Ok();
@@ -56,8 +57,9 @@ namespace R_Exam.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public ActionResult UpdateQuestion([FromBody] Question question)
+        public ActionResult Update([FromBody] Question question)
         {
+            Console.WriteLine(123);
             try
             {
                 questionService.UpdateQuestion(question);
@@ -76,7 +78,7 @@ namespace R_Exam.Controllers
         [HttpDelete("[action]/{id}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
-        public ActionResult RemoveQuestion(int id)
+        public ActionResult Remove(int id)
         {
             try
             {

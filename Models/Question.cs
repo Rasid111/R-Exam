@@ -2,15 +2,20 @@
 {
     public class Question
     {
-        public Question(long id, string title, string[] answers, string rightAnswer) {
+        public Question(long id, string title, List<Answer> answers, string correctAnswerTitle) {
             Id = id;
             Title = title;
             Answers = answers;
-            RightAnswer = rightAnswer;
+            CorrectAnswerTitle = correctAnswerTitle;
         }
         public long Id { get; set; }
         public string Title { get; set; }
-        public string[] Answers { get; set; }
-        public string RightAnswer { get; set; }
+        public List<Answer> Answers { get; set; }
+        public string CorrectAnswerTitle { get; set; }
+
+        public Question()
+        {
+
+        }
     }
 }
