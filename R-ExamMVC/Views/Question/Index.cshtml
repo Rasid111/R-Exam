@@ -1,0 +1,124 @@
+﻿<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <div class="container my-5">
+        <div class="row flex-column g-4">
+            <div class="col">
+                <div class="w-25 btn btn-dark" onclick="showCreateForm()">Create new question</div>
+                <div class="d-flex d-none justify-content-center mt-3" id="create">
+                    <form class="w-25">
+                        <input type="text" name="title" class="form-control mb-3" placeholder="Question Title">
+                        <input type="text" name="correctAnswerTitle" class="form-control mb-3" placeholder="Correct Answer">
+                        <div id="answersCreate"></div>
+                        <button type="button" id="addAnswerCreate" class="btn btn-dark add-answer-in-create-btn">Add answer</button>
+                        <button type="submit" class="btn btn-dark">Submit</button>
+                    </form>
+                </div>
+            </div>
+            <div class="col">
+                <div class="w-25 btn btn-dark" onclick="showGetForm()">Get question by id</div>
+                <div class="d-flex d-none justify-content-center mt-3" id="get">
+                    <div class="container">
+                        <div class="row justify-content-center">
+                            <div class="col d-flex justify-content-center">
+                                <form class="w-25">
+                                    <input type="number" name="id" class="form-control mb-3 w-100" placeholder="Question Id">
+                                    <button type="submit" class="btn btn-dark">Get</button>
+                                </form>
+                            </div>
+                        </div>
+                        <div id="getResponse" class="row justify-content-center d-none"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col"><div class="w-25 btn btn-dark">Update question</div></div>
+
+            <div class="col"><div class="w-25 btn btn-dark">Delete question</div></div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    let answersCountInCreate = 0;
+
+    function showCreateForm() {
+        document.getElementById("create").classList.toggle("d-none");
+        answersCountInCreate = 0;
+        document.getElementById("answersCreate").innerHTML = "";
+    }
+
+    function showGetForm() {
+        document.getElementById("get").classList.toggle("d-none");
+    }
+
+    function addInputInCreate(ev) {
+        let answers;
+        if (ev.target.id === "addAnswerCreate")
+            answers = document.getElementById("answersCreate");
+        else
+            answers = document.getElementById("answersUpdate");
+        const input = document.createElement("input");
+        input.type = "text";
+        input.name = "answer" + ++answersCountInCreate;
+        input.className = "form-control mb-3";
+        input.placeholder = "Answer";
+        answers.appendChild(input);
+    }
+    async function submitCreation(ev) {
+        const rawBody = Object.fromEntries(new FormData(ev.target));
+        answers = []
+        for (key in rawBody) {
+            if (key.includes("nswer"))
+                answers.push({
+                    id: 0,
+                    title: rawBody[key],
+                    correctAnswerId: 0
+                });
+        }
+        const body = {
+            id: 0,
+            title: rawBody.title,
+            correctAnswerTitle: rawBody.correctAnswerTitle,
+            answers: answers
+        }
+        await fetch("http://localhost:5266/question/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(body),
+        });
+        answersCount = 1;
+    }
+
+    async function getQuestion(ev) {
+        id = Object.fromEntries(new FormData(ev.target)).id;
+        const question = await (await fetch("http://localhost:5266/question/" + id)).json();
+        const getResponseElement = document.getElementById("getResponse");
+        getResponseElement.classList.remove("d-none");
+            getResponseElement.innerHTML = `
+                            <div class="col col-3 text-start">
+                                <div class="row mt-3 justify-content-center g-3">
+                                    <div class="col col-6"><span class="border rounded p-1 w-100 d-block">Id: ${question.id}</span></div>
+                                    <div class="col col-6"><span class="border rounded p-1 w-100 d-block">Title: ${question.title}</span></div>
+                                </div>
+                                <div class="row mt-1 g-3">
+                                    <div class="col col-12"><span class="border rounded p-1 w-100 d-block">Correct answer: ${question.correctAnswerTitle}</span></div>
+                                </div>
+                                ${question.answers.map((answer, index) => {
+                                        return `
+                                    <div class="row mt-1 g-3">
+                                        <div class="col col-12"><span class="border rounded p-1 w-100 d-block">Answer${index+1}: ${answer.title}</span></div>
+                                    </div>`;
+                                    }).join('')}
+                            </div>`
+    }
+
+    const buttons = document.getElementsByClassName("add-answer-in-create-btn");
+    Array.from(buttons).forEach((button) => {
+        button.addEventListener("click", (ev) => addInputInCreate(ev));
+    });
+
+    document.getElementById("create").addEventListener("submit", (ev) => { ev.preventDefault(); submitCreation(ev) });
+    document.getElementById("get").addEventListener("submit", (ev) => { ev.preventDefault(); getQuestion(ev) });
+</script>

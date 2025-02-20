@@ -1,4 +1,4 @@
-﻿namespace R_Exam.Models
+﻿namespace Models
 {
     public class Answer
     {
