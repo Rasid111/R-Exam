@@ -53,13 +53,12 @@ namespace R_Exam.Controllers
             return Ok(question);
         }
 
-        [HttpPatch("[action]")]
+        [HttpPatch()]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         public ActionResult Update([FromBody] Question question)
         {
-            Console.WriteLine(123);
             try
             {
                 questionService.UpdateQuestion(question);
@@ -75,7 +74,7 @@ namespace R_Exam.Controllers
             return Ok();
         }
 
-        [HttpDelete("[action]/{id}")]
+        [HttpDelete("{id}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         public ActionResult Remove(int id)
