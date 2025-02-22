@@ -1,6 +1,7 @@
 using Dapper;
 using Microsoft.Data.SqlClient;
 using Models;
+using R_Exam.Midlewares;
 using R_Exam.Repositories;
 using R_Exam.Repositories.Base;
 using R_Exam.Services;
@@ -26,10 +27,12 @@ builder.Services.AddCors(options =>
     });
 });
 
-var connectionString = "";
+var connectionString = "Server=DESKTOP-EINAMOG\\MS_SQL_SERVER;Database=r_exam;User Id=sa;Password=R24002004;TrustServerCertificate=True;Trusted_Connection=True;";
 
 builder.Services.AddScoped<IQuestionService>((serviceProvider) => new QuestionService(new QuestionDapperRepository(connectionString)));
+builder.Services.AddScoped<ILogService>((serviceProvider) => new LogService(new LogDapperRepository(connectionString)));
 builder.Services.AddScoped<IQuestionRepository>((serviceProvider) => new QuestionJSONRepository());
+builder.Services.AddScoped<ILogRepository>((serviceProvider) => new LogDapperRepository(connectionString));
 
 var app = builder.Build();
 
@@ -41,5 +44,6 @@ app.UseCors(allowMVCOrigin);
 app.MapControllers()
     .RequireCors(allowMVCOrigin);
 
+app.UseMiddleware<LoggingMiddleware>();
 
 app.Run();
