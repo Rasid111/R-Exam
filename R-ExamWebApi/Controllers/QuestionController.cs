@@ -8,7 +8,9 @@ using System.Net;
 
 namespace R_Exam.Controllers
 {
-    [Route("/[controller]")]
+    [Route("/api/[controller]")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(500)]
     public class QuestionController : ControllerBase
     {
 
@@ -20,19 +22,10 @@ namespace R_Exam.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         public ActionResult CreateQuestion([FromBody] Question question)
         {
-            try
-            {
-                questionService.CreateQuestion(question);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                return BadRequest();
-            }
+            questionService.CreateQuestion(question);
             return Ok();
         }
 
@@ -42,51 +35,24 @@ namespace R_Exam.Controllers
         public ActionResult GetQuestion(int id)
         {
             Question question;
-            try
-            {
-                question = questionService.GetQuestion(id);
-            }
-            catch (QuestionNotFoundException)
-            {
-                return NotFound();
-            }
+            question = questionService.GetQuestion(id);
             return Ok(question);
         }
 
         [HttpPatch()]
-        [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         public ActionResult Update([FromBody] Question question)
         {
-            try
-            {
-                questionService.UpdateQuestion(question);
-            }
-            catch (QuestionNotFoundException)
-            {
-                return NotFound();
-            }
-            catch (Exception)
-            {
-                return BadRequest();
-            }
+            questionService.UpdateQuestion(question);
             return Ok();
         }
 
         [HttpDelete("{id}")]
-        [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         public ActionResult Remove(int id)
         {
-            try
-            {
-                questionService.DeleteQuestion(id);
-            }
-            catch (QuestionNotFoundException)
-            {
-                return NotFound();
-            }
+            questionService.DeleteQuestion(id);
             return Ok();
         }
     }

@@ -23,19 +23,19 @@ namespace R_Exam.Repositories
         {
             return File.Exists(path) ? JsonSerializer.Deserialize<List<Question>>(File.ReadAllText(path)) ?? [] : [];
         }
-        public void CreateQuestion(Question question)
+        public void Create(Question question)
         {
             var questions = GetQuestions();
             question.Id = ++id;
             questions.Add(question);
             File.WriteAllText(path, JsonSerializer.Serialize(questions));
         }
-        public Question? GetQuestion(int id)
+        public Question? Get(int id)
         {
             var questions = GetQuestions();
             return questions.FirstOrDefault(question => (question.Id == id));
         }
-        public bool UpdateQuestion(Question questionData)
+        public bool Update(Question questionData)
         {
             var questions = GetQuestions();
             var index = questions.FindIndex(question => question.Id == questionData.Id);
@@ -45,7 +45,7 @@ namespace R_Exam.Repositories
             File.WriteAllText(path, JsonSerializer.Serialize(questions));
             return true;
         }
-        public bool DeleteQuestion(int id)
+        public bool Delete(int id)
         {
             var questions = GetQuestions();
             var question = questions.Find((question) => question.Id == id);

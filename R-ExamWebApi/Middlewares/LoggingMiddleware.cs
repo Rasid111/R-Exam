@@ -1,7 +1,7 @@
 ﻿using Models;
 using R_Exam.Services.Base;
 
-namespace R_Exam.Midlewares
+namespace R_Exam.Middlewares
 {
     public class LoggingMiddleware
     {

@@ -16,25 +16,29 @@ namespace R_Exam.Services
 
         public void CreateQuestion(Question question)
         {
-            this.repository.CreateQuestion(question);
+            if (question.Answers.Find((answer) => answer.Title == question.CorrectAnswerTitle) == null)
+                throw new ArgumentException("Question must have a correct answer", nameof(question));
+            this.repository.Create(question);
         }
         public Question GetQuestion(int id)
         {
-            var question = this.repository.GetQuestion(id);
-
-            return question ?? throw new QuestionNotFoundException();
+            var question = this.repository.Get(id);
+            // я могу тут вместо кастомного QuestionNotFoundException использовать KeyNotFoundException?
+            return question ?? throw new QuestionNotFoundException(nameof(id), "Question was not found");
         }
         public void UpdateQuestion(Question question)
         {
-            var resultStatus = this.repository.UpdateQuestion(question);
+            if (question.Answers.Find((answer) => answer.Title == question.CorrectAnswerTitle) == null)
+                throw new ArgumentException("Question must have a correct answer", nameof(question));
+            var resultStatus = this.repository.Update(question);
             if (!resultStatus)
-                throw new QuestionNotFoundException();
+                throw new QuestionNotFoundException(nameof(question.Id), "Question was not found");
         }
         public void DeleteQuestion(int id)
         {
-            var resultStatus = this.repository.DeleteQuestion(id);
+            var resultStatus = this.repository.Delete(id);
             if (!resultStatus)
-                throw new QuestionNotFoundException();
+                throw new QuestionNotFoundException(nameof(id), "Question was not found");
         }
     }
 }

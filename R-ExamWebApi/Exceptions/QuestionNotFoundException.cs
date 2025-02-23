@@ -1,9 +1,7 @@
 ﻿namespace R_Exam.Exceptions
 {
-    public class QuestionNotFoundException : Exception
+    public class QuestionNotFoundException(string key, string? message = null) : Exception(message)
     {
-        public QuestionNotFoundException() { }
-
-        public QuestionNotFoundException(string message) : base(message) { }
+        public string Key { get; set; } = key;
     }
 }

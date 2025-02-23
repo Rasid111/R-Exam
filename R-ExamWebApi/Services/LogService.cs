@@ -42,7 +42,7 @@ namespace R_Exam.Services
         public async void CreateResponseLog(HttpContext httpContext)
         {
             var response = httpContext.Response;
-
+            //Считать request.Body я смог, а для reponse нормального способа не нашел
             //using var reader = new StreamReader(response.Body);
             //var body = await reader.ReadToEndAsync();
             var headers = JsonSerializer.Serialize(httpContext.Response.Headers);

@@ -22,11 +22,8 @@ namespace R_Exam.Repositories
             using IDbConnection db = new SqlConnection(connectionString);
             return db.Query<Question>("SELECT * FROM Questions").ToList();
         }
-        public void CreateQuestion(Question question)
+        public void Create(Question question)
         {
-            if (question.Answers.Find((answer) => answer.Title == question.CorrectAnswerTitle) == null)
-                throw new ArgumentException("Question must have a correct answer", nameof(question.CorrectAnswerTitle));
-
             using IDbConnection db = new SqlConnection(connectionString);
             var sqlQuery = @"INSERT INTO Questions (Title, CorrectAnswerTitle) 
                             VALUES(@Title, @CorrectAnswerTitle); 
@@ -37,7 +34,7 @@ namespace R_Exam.Repositories
             question.Answers.ForEach(answer => answer.QuestionId = questionId);
             db.Execute(sqlQuery, question.Answers);
         }
-        public Question? GetQuestion(int id)
+        public Question? Get(int id)
         {
             using IDbConnection db = new SqlConnection(connectionString);
             Question? question = db.Query<Question>("SELECT * FROM Questions WHERE Id = @Id", new { id }).FirstOrDefault();
@@ -45,11 +42,8 @@ namespace R_Exam.Repositories
                 question.Answers = db.Query<Answer>("SELECT * FROM Answers WHERE QuestionId = @Id", new { id }).ToList();
             return question;
         }
-        public bool UpdateQuestion(Question questionData)
+        public bool Update(Question questionData)
         {
-            if (questionData.Answers.Find((answer) => answer.Title == questionData.CorrectAnswerTitle) == null)
-                throw new ArgumentException("Question must have a correct answer", nameof(questionData.CorrectAnswerTitle));
-
             using IDbConnection db = new SqlConnection(connectionString);
             var sqlQuery = "UPDATE Questions SET Title = @Title, CorrectAnswerTitle = @CorrectAnswerTitle WHERE Id = @Id";
             var affectedRowsCount = db.Execute(sqlQuery, questionData);
@@ -67,9 +61,8 @@ namespace R_Exam.Repositories
 
             return true;
         }
-        public bool DeleteQuestion(int id)
+        public bool Delete(int id)
         {
-
             using IDbConnection db = new SqlConnection(connectionString);
             return (db.Execute(@"DELETE FROM Questions
                                 WHERE Id = @Id", new { id }) > 0);
