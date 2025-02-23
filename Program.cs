@@ -1,25 +1,29 @@
+using Dapper;
+using Microsoft.Data.SqlClient;
+using R_Exam.Models;
+using R_Exam.Repositories;
+using R_Exam.Repositories.Base;
+using R_Exam.Services;
+using R_Exam.Services.Base;
+using System.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddControllers();
+
+var connectionString = "connectionString";
+
+builder.Services.AddScoped<IQuestionService>((serviceProvider) => new QuestionService(new QuestionDapperRepository(connectionString)));
+builder.Services.AddScoped<IQuestionRepository>((serviceProvider) => new QuestionJSONRepository());
 
 var app = builder.Build();
-
 
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.UseHttpsRedirection();
+app.MapControllers();
 
-app.MapGet("/question", () =>
-{
-    return new {
-        Question = "1 + 1",
-        Answer1 = "1",
-        Answer2 = "2",
-        Answer3 = "3",
-        Answer4 = "4"
-    };
-});
 
 app.Run();
