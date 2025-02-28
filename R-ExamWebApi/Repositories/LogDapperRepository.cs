@@ -6,15 +6,10 @@ using System.Data;
 
 namespace R_Exam.Repositories
 {
-    public class LogDapperRepository : ILogRepository
+    public class LogDapperRepository(string connectionString) : ILogRepository
     {
+        private readonly string connectionString = connectionString;
 
-        private readonly string connectionString;
-
-        public LogDapperRepository(string connectionString)
-        {
-            this.connectionString = connectionString;
-        }
         public void CreateRequestLog(RequestLog log)
         {
             using IDbConnection db = new SqlConnection(connectionString);

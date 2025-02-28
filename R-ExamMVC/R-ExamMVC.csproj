@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Models\Models.csproj" />
+    <ProjectReference Include="..\R-ExamWebApi\R-ExamWebApi.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

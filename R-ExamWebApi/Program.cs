@@ -1,4 +1,5 @@
 using Dapper;
+using FluentValidation;
 using Microsoft.Data.SqlClient;
 using Models;
 using R_Exam.Middlewares;
@@ -7,6 +8,7 @@ using R_Exam.Repositories.Base;
 using R_Exam.Services;
 using R_Exam.Services.Base;
 using System.Data;
+using System.Reflection;
 
 var allowMVCOrigin = "_allowMVCOrigin";
 
@@ -26,8 +28,11 @@ builder.Services.AddCors(options =>
         .AllowAnyOrigin();
     });
 });
+string connectionString = builder.Configuration.GetConnectionString("R-ExamDb") ?? throw new ArgumentNullException(nameof(connectionString), "Internal Error");
 
-var connectionString = "Server=DESKTOP-EINAMOG\\MS_SQL_SERVER;Database=r_exam;User Id=sa;Password=R24002004;TrustServerCertificate=True;Trusted_Connection=True;";
+builder.Services.AddValidatorsFromAssemblies(new Assembly[] {
+    Assembly.GetExecutingAssembly(),
+});
 
 builder.Services.AddScoped<IQuestionService, QuestionService>();
 builder.Services.AddScoped<ILogService, LogService>();

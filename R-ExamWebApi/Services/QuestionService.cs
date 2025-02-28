@@ -2,22 +2,20 @@
 using Models;
 using R_Exam.Repositories.Base;
 using R_Exam.Services.Base;
+using R_Exam.Validators;
 
 namespace R_Exam.Services
 {
-    public class QuestionService : IQuestionService
+    public class QuestionService(IQuestionRepository repository, QuestionValidator validator) : IQuestionService
     {
-        private readonly IQuestionRepository repository;
-
-        public QuestionService(IQuestionRepository repository)
-        {
-            this.repository = repository;
-        }
+        private readonly IQuestionRepository repository = repository;
+        private readonly QuestionValidator validator = validator;
 
         public void CreateQuestion(Question question)
         {
-            if (question.Answers.Find((answer) => answer.Title == question.CorrectAnswerTitle) == null)
-                throw new ArgumentException("Question must have a correct answer", nameof(question));
+            var validationResult = this.validator.Validate(question);
+            if (!validationResult.IsValid)
+                throw new ArgumentException(validationResult.Errors.First().ErrorMessage, validationResult.Errors.First().PropertyName);
             this.repository.Create(question);
         }
         public Question GetQuestion(int id)
@@ -28,8 +26,9 @@ namespace R_Exam.Services
         }
         public void UpdateQuestion(Question question)
         {
-            if (question.Answers.Find((answer) => answer.Title == question.CorrectAnswerTitle) == null)
-                throw new ArgumentException("Question must have a correct answer", nameof(question));
+            var validationResult = this.validator.Validate(question);
+            if (!validationResult.IsValid)
+                throw new ArgumentException(validationResult.Errors.First().ErrorMessage, validationResult.Errors.First().PropertyName);
             var resultStatus = this.repository.Update(question);
             if (!resultStatus)
                 throw new QuestionNotFoundException(nameof(question.Id), "Question was not found");
