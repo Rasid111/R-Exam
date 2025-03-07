@@ -1,0 +1,21 @@
+﻿@model R_Exam.MVC.ViewModels.Question?
+
+@if(Model == null)
+{
+    <div>Not Found</div>
+}
+else
+{
+    <h1>@Model.Id @Model.Title</h1>
+    <ul>
+        @foreach (var answer in Model.Answers)
+        {
+            @if (answer.Title == Model.CorrectAnswerTitle)
+            {
+                <li>@answer.Title <b>CORRECT</b></li>
+            } else {
+                <li>@answer.Title</li>
+            }
+        }
+    </ul>
+}
