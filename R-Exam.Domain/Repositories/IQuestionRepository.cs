@@ -6,10 +6,10 @@ namespace R_Exam.Domain.Repositories
 {
     public interface IQuestionRepository
     {
-        public void Create(Question question);
-        public List<Question> Get();
-        public Question? Get(int id);
-        public bool Update(Question questionData);
-        public bool Delete(int id);
+        public Task<int> Create(Question question);
+        public Task<List<Question>> Get();
+        public Task<Question?> Get(int id);
+        public Task<bool> Update(Question questionData);
+        public Task<bool> Delete(int id);
     }
 }

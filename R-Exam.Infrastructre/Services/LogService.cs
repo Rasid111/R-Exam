@@ -3,6 +3,7 @@ using R_Exam.Domain.Models;
 using R_Exam.Application.Services;
 using R_Exam.Domain.Repositories;
 using System.Text.Json;
+using System.Text;
 
 namespace R_Exam.Infrastructre.Services
 {
@@ -10,16 +11,14 @@ namespace R_Exam.Infrastructre.Services
     {
         readonly ILogRepository repository = repository;
 
-        public async void CreateRequestLog(HttpContext httpContext)
+        public async Task CreateRequestLog(HttpContext httpContext)
         {
-            //var request = httpContext.Request;
-            //request.EnableBuffering();
-            //var buffer = new byte[Convert.ToInt32(request.ContentLength)];
-            //await request.Body.ReadAsync(buffer);
-            //var body = Encoding.UTF8.GetString(buffer);
-            //request.Body.Position = 0;
-
-            //?
+            var request = httpContext.Request;
+            request.EnableBuffering();
+            var buffer = new byte[Convert.ToInt32(request.ContentLength)];
+            await request.Body.ReadAsync(buffer);
+            var body = Encoding.UTF8.GetString(buffer);
+            request.Body.Position = 0;
 
             var headers = JsonSerializer.Serialize(httpContext.Request.Headers);
 
@@ -27,20 +26,18 @@ namespace R_Exam.Infrastructre.Services
             {
                 RequestId = httpContext.TraceIdentifier,
                 Url = httpContext.Request.Path,
-                RequestBody = "",
+                RequestBody = body,
                 RequestHeaders = headers,
                 MethodType = httpContext.Request.Method,
-                ClientIp = httpContext.Connection.RemoteIpAddress.ToString(),
+                ClientIp = httpContext.Connection.RemoteIpAddress?.ToString(),
                 CreationDateTime = DateTime.Now,
             };
-            repository.CreateRequestLog(log);
+            await repository.CreateRequestLog(log);
         }
-        public async void CreateResponseLog(HttpContext httpContext)
+        public async Task CreateResponseLog(HttpContext httpContext)
         {
             var response = httpContext.Response;
-            //Считать request.Body я смог, а для reponse нормального способа не нашел
-            //using var reader = new StreamReader(response.Body);
-            //var body = await reader.ReadToEndAsync();
+            // TODO - read body
             var headers = JsonSerializer.Serialize(httpContext.Response.Headers);
 
             var log = new ResponseLog()
@@ -50,7 +47,7 @@ namespace R_Exam.Infrastructre.Services
                 StatusCode = response.StatusCode,
                 EndDateTime = DateTime.Now,
             };
-            repository.CreateResponseLog(log);
+            await repository.CreateResponseLog(log);
         }
     }
 }

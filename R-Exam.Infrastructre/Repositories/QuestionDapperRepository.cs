@@ -10,54 +10,60 @@ namespace R_Exam.Infrastructre.Repositories
     {
         private readonly string connectionString = connectionString;
 
-        public List<Question> Get()
+        public async Task<List<Question>> Get()
         {
             using IDbConnection db = new SqlConnection(connectionString);
-            return db.Query<Question>("SELECT * FROM Questions").ToList();
+            List<Question> questions = (await db.QueryAsync<Question>("SELECT * FROM Questions")).ToList();
+            foreach (Question question in questions)
+            {
+                question.Answers = (await db.QueryAsync<Answer>("SELECT * FROM Answers WHERE QuestionId = @Id", new { id = question.Id })).ToList();
+            }
+            return questions;
         }
-        public void Create(Question question)
+        public async Task<int> Create(Question question)
         {
             using IDbConnection db = new SqlConnection(connectionString);
             var sqlQuery = @"INSERT INTO Questions (Title, CorrectAnswerTitle) 
                             VALUES(@Title, @CorrectAnswerTitle); 
                             select scope_identity() as int;";
-            int questionId = db.Query<int>(sqlQuery, question).First();
+            int questionId = (await db.QueryAsync<int>(sqlQuery, question)).First();
             sqlQuery = @"INSERT INTO Answers (Title, QuestionId) 
                         VALUES(@Title, @QuestionId)";
             question.Answers.ForEach(answer => answer.QuestionId = questionId);
-            db.Execute(sqlQuery, question.Answers);
+            await db.ExecuteAsync(sqlQuery, question.Answers);
+            return questionId;
         }
-        public Question? Get(int id)
+        public async Task<Question?> Get(int id)
         {
             using IDbConnection db = new SqlConnection(connectionString);
-            Question? question = db.Query<Question>("SELECT * FROM Questions WHERE Id = @Id", new { id }).FirstOrDefault();
+            Question? question = (await db.QueryAsync<Question>("SELECT * FROM Questions WHERE Id = @Id", new { id })).FirstOrDefault();
             if (question != null)
-                question.Answers = db.Query<Answer>("SELECT * FROM Answers WHERE QuestionId = @Id", new { id }).ToList();
+                question.Answers = (await db.QueryAsync<Answer>("SELECT * FROM Answers WHERE QuestionId = @Id", new { id })).ToList();
             return question;
         }
-        public bool Update(Question questionData)
+        public async Task<bool> Update(Question questionData)
         {
             using IDbConnection db = new SqlConnection(connectionString);
             var sqlQuery = "UPDATE Questions SET Title = @Title, CorrectAnswerTitle = @CorrectAnswerTitle WHERE Id = @Id";
-            var affectedRowsCount = db.Execute(sqlQuery, questionData);
+            var affectedRowsCount = await db.ExecuteAsync(sqlQuery, questionData);
 
             if (affectedRowsCount == 0)
                 return false;
 
             sqlQuery = @"DELETE Answers Where QuestionId = @Id;";
-            db.Execute(sqlQuery, questionData);
+            await db.ExecuteAsync(sqlQuery, questionData);
 
             sqlQuery = @"INSERT INTO Answers (Title, QuestionId) 
                         VALUES(@Title, @QuestionId)";
             questionData.Answers.ForEach(answer => answer.QuestionId = questionData.Id);
-            db.Execute(sqlQuery, questionData.Answers);
+            await db.ExecuteAsync(sqlQuery, questionData.Answers);
 
             return true;
         }
-        public bool Delete(int id)
+        public async Task<bool> Delete(int id)
         {
             using IDbConnection db = new SqlConnection(connectionString);
-            return db.Execute(@"DELETE FROM Questions
+            return await db.ExecuteAsync(@"DELETE FROM Questions
                                 WHERE Id = @Id", new { id }) > 0;
         }
     }

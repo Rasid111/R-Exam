@@ -1,17 +1,17 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using R_Exam.MVC.ViewModels;
-using System.Net.Http;
+using R_Exam.Application.Dtos.Question;
+using R_Exam.MVC.Models;
+using System.Text;
+using System.Text.Json;
 
 namespace R_Exam.MVC.Controllers
 {
-    public class QuestionController : Controller
+    public class QuestionController(HttpClient httpClient, IMapper mapper) : Controller
     {
-        private readonly HttpClient _httpClient;
-        public QuestionController(HttpClient httpClient)
-        {
-            _httpClient = httpClient;
-        }
+        private readonly HttpClient httpClient = httpClient;
+        private readonly IMapper mapper = mapper;
+
         // GET: QuestionController
         public ActionResult Index()
         {
@@ -21,17 +21,18 @@ namespace R_Exam.MVC.Controllers
         // GET: QuestionController/Details/5
         public async Task<ActionResult> Details(int id)
         {
-            var response = await _httpClient.GetAsync($"http://localhost:5266/api/Question/{id}");
+            var response = await httpClient.GetAsync($"http://localhost:5266/api/Question/{id}");
 
             if (response.IsSuccessStatusCode)
             {
-                var question = await response.Content.ReadFromJsonAsync<Question>();
+                var question = await response.Content.ReadFromJsonAsync<QuestionDetailsViewModel>();
                 return View(question);
             }
             return View(null);
         }
 
         // GET: QuestionController/Create
+        [HttpGet]
         public ActionResult Create()
         {
             return View();
@@ -40,16 +41,15 @@ namespace R_Exam.MVC.Controllers
         // POST: QuestionController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public async Task<ActionResult> Create(QuestionCreateViewModel model)
         {
-            try
+            if (ModelState.IsValid)
             {
-                return RedirectToAction(nameof(Index));
+                var question = mapper.Map<QuestionCreateRequestDto>(model);
+                var response = await httpClient.PostAsync("http://localhost:5266/api/Question/", new StringContent(JsonSerializer.Serialize(question), Encoding.UTF8, "application/json"));
+                return RedirectToAction("Index");
             }
-            catch
-            {
-                return View();
-            }
+            return View(model);
         }
 
         // GET: QuestionController/Edit/5

@@ -2,59 +2,60 @@
 using R_Exam.Domain.Models;
 using R_Exam.Application.Services;
 using System.Net;
+using MediatR;
+using R_Exam.Application.Dtos.Question;
 
 namespace R_Exam.Presentation.Controllers
 {
     [Route("/api/[controller]")]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-    public class QuestionController(IQuestionService questionService) : ControllerBase
+    public class QuestionController(IQuestionService questionService, ISender sender) : ControllerBase
     {
 
         private readonly IQuestionService questionService = questionService;
-
+        private readonly ISender sender = sender;
         [HttpPost]
-        [ProducesResponseType(400)]
-        public ActionResult CreateQuestion([FromBody] Question question)
+        [ProducesResponseType(typeof(int), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult> CreateQuestion([FromBody] QuestionCreateRequestDto question)
         {
-            questionService.Create(question);
-            return Ok();
+            var response = await this.sender.Send(question);
+            return Ok(response);
         }
 
         [HttpGet]
-        [ProducesResponseType(typeof(List<Question>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(List<QuestionGetResponseDto>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
-        public ActionResult GetQuestions()
+        public async Task<ActionResult> GetQuestions()
         {
-            List<Question> questions;
-            questions = questionService.Get();
-            return questions.Count == 0 ? NoContent() : Ok(questions);
+            var response = await this.sender.Send(new QuestionGetAllRequestDto());
+            return response.Count == 0 ? NoContent() : Ok(response);
         }
 
         [HttpGet("{id}")]
-        [ProducesResponseType(typeof(Question), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(QuestionGetResponseDto), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public ActionResult GetQuestion(int id)
+        public async Task<ActionResult> GetQuestion(int id)
         {
-            Question question;
-            question = questionService.Get(id);
-            return Ok(question);
+            var response = await this.sender.Send(new QuestionGetRequestDto(id: id));
+            return Ok(response);
         }
 
         [HttpPatch()]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public ActionResult Update([FromBody] Question question)
+        public async Task<ActionResult> Update([FromBody] QuestionUpdateRequestDto question)
         {
-            questionService.Update(question);
+            await this.sender.Send(question);
             return Ok();
         }
 
         [HttpDelete("{id}")]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public ActionResult Remove(int id)
+        public async Task<ActionResult> Remove(int id)
         {
-            questionService.Delete(id);
+            await questionService.Delete(id);
             return Ok();
         }
     }

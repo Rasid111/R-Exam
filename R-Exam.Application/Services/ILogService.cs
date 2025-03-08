@@ -4,7 +4,7 @@ namespace R_Exam.Application.Services
 {
     public interface ILogService
     {
-        public void CreateRequestLog(HttpContext httpContext);
-        public void CreateResponseLog(HttpContext httpContext);
+        public Task CreateRequestLog(HttpContext httpContext);
+        public Task CreateResponseLog(HttpContext httpContext);
     }
 }

@@ -4,21 +4,14 @@ namespace R_Exam.Domain.Models
 {
     public class Question
     {
-        public Question(long id, string title, List<Answer> answers, string correctAnswerTitle)
+        public Question()
         {
-            Id = id;
-            Title = title;
-            Answers = answers;
-            CorrectAnswerTitle = correctAnswerTitle;
+            Answers = [];
         }
         public long Id { get; set; }
         public string Title { get; set; }
         public List<Answer> Answers { get; set; }
         public string CorrectAnswerTitle { get; set; }
 
-        public Question()
-        {
-
-        }
     }
 }

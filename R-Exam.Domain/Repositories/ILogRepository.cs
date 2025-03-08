@@ -4,7 +4,7 @@ namespace R_Exam.Domain.Repositories
 {
     public interface ILogRepository
     {
-        public void CreateRequestLog(RequestLog log);
-        public void CreateResponseLog(ResponseLog log);
+        public Task CreateRequestLog(RequestLog log);
+        public Task CreateResponseLog(ResponseLog log);
     }
 }

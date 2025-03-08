@@ -10,19 +10,19 @@ namespace R_Exam.Infrastructre.Repositories
     {
         private readonly string connectionString = connectionString;
 
-        public void CreateRequestLog(RequestLog log)
+        public async Task CreateRequestLog(RequestLog log)
         {
             using IDbConnection db = new SqlConnection(connectionString);
             var sqlQuery = @"INSERT INTO RequestLogs (RequestId, Url, RequestBody, RequestHeaders, MethodType, CreationDateTime, ClientIp) 
                             VALUES(@RequestId, @Url, @RequestBody, @RequestHeaders, @MethodType, @CreationDateTime, @ClientIp);";
-            db.Query(sqlQuery, log);
+            await db.QueryAsync(sqlQuery, log);
         }
-        public void CreateResponseLog(ResponseLog log)
+        public async Task CreateResponseLog(ResponseLog log)
         {
             using IDbConnection db = new SqlConnection(connectionString);
             var sqlQuery = @"INSERT INTO ResponseLogs (StatusCode, ResponseBody, ResponseHeaders, EndDateTime) 
                             VALUES(@StatusCode, @ResponseBody, @ResponseHeaders, @EndDateTime);";
-            db.Query(sqlQuery, log);
+            await db.QueryAsync(sqlQuery, log);
         }
     }
 }

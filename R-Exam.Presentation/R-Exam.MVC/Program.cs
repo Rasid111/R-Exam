@@ -1,3 +1,6 @@
+using R_Exam.Application.Mappers;
+using System.Reflection;
+
 namespace R_Exam.MVC
 {
     public class Program
@@ -9,6 +12,7 @@ namespace R_Exam.MVC
             // Add services to the container.
             builder.Services.AddControllersWithViews();
             builder.Services.AddHttpClient();
+            builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
             var app = builder.Build();
 

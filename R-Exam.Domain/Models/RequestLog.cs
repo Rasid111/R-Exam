@@ -7,7 +7,7 @@
         public string RequestBody { get; set; }
         public string RequestHeaders { get; set; }
         public string MethodType { get; set; }
-        public string ClientIp { get; set; }
+        public string? ClientIp { get; set; }
         public DateTime CreationDateTime { get; set; }
     }
 }

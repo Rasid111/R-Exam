@@ -1,4 +1,4 @@
-﻿@model R_Exam.MVC.ViewModels.Question?
+﻿@model QuestionDetailsViewModel?
 
 @if(Model == null)
 {
@@ -10,11 +10,11 @@ else
     <ul>
         @foreach (var answer in Model.Answers)
         {
-            @if (answer.Title == Model.CorrectAnswerTitle)
+            @if (answer == Model.CorrectAnswerTitle)
             {
-                <li>@answer.Title <b>CORRECT</b></li>
+                <li>@answer <b>CORRECT</b></li>
             } else {
-                <li>@answer.Title</li>
+                <li>@answer</li>
             }
         }
     </ul>

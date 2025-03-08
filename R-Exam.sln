@@ -8,6 +8,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "R-Exam.Presentation", "R-Exam.Presentation", "{613CBF7A-CD3A-48ED-9D8A-053BB88282B3}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "R-Exam.MVC", "R-Exam.Presentation\R-Exam.MVC\R-Exam.MVC.csproj", "{918CA73A-5B21-446A-9261-6C75D9C12403}"
+	ProjectSection(ProjectDependencies) = postProject
+		{92778856-CFED-4C28-A40B-01435782F9FC} = {92778856-CFED-4C28-A40B-01435782F9FC}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "R-Exam.Application", "R-Exam.Application\R-Exam.Application.csproj", "{92778856-CFED-4C28-A40B-01435782F9FC}"
 EndProject

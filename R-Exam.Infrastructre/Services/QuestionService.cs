@@ -12,44 +12,45 @@ namespace R_Exam.Infrastructre.Services
         private readonly IQuestionRepository repository = repository;
         private readonly IValidator<Question> validator = validator;
 
-        public void Create(Question question)
+        public async Task<int> Create(Question question)
         {
-            var validationResult = validator.Validate(question);
+            var validationResult = await validator.ValidateAsync(question);
             if (!validationResult.IsValid)
                 throw new ArgumentException(validationResult.Errors.First().ErrorMessage, validationResult.Errors.First().PropertyName);
             try
             {
-                repository.Create(question);
+                int questionId = await repository.Create(question);
+                return questionId;
             }
             catch (SqlException)
             {
                 throw new ArgumentException("There is already exist question with the same title", nameof(question));
             }
         }
-        public List<Question> Get()
+        public async Task<List<Question>> Get()
         {
             var questions = repository.Get();
             // я могу тут вместо кастомного QuestionNotFoundException использовать KeyNotFoundException?
-            return questions;
+            return await questions;
         }
-        public Question Get(int id)
+        public async Task<Question> Get(int id)
         {
             var question = repository.Get(id);
             // я могу тут вместо кастомного QuestionNotFoundException использовать KeyNotFoundException?
-            return question ?? throw new QuestionNotFoundException(nameof(id), "Question was not found");
+            return await question ?? throw new QuestionNotFoundException(nameof(id), "Question was not found");
         }
-        public void Update(Question question)
+        public async Task Update(Question question)
         {
             var validationResult = validator.Validate(question);
             if (!validationResult.IsValid)
                 throw new ArgumentException(validationResult.Errors.First().ErrorMessage, validationResult.Errors.First().PropertyName);
-            var resultStatus = repository.Update(question);
+            var resultStatus = await repository.Update(question);
             if (!resultStatus)
                 throw new QuestionNotFoundException(nameof(question.Id), "Question was not found");
         }
-        public void Delete(int id)
+        public async Task Delete(int id)
         {
-            var resultStatus = repository.Delete(id);
+            var resultStatus = await repository.Delete(id);
             if (!resultStatus)
                 throw new QuestionNotFoundException(nameof(id), "Question was not found");
         }

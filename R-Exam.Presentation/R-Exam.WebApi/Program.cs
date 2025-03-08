@@ -6,6 +6,10 @@ using R_Exam.Infrastructre.Repositories;
 using R_Exam.Infrastructre.Validators;
 using R_Exam.Domain.Models;
 using R_Exam.Application.Services;
+using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
+using R_Exam.Application.Mappers;
+using R_Exam.Application.Dtos.Question;
 
 internal class Program
 {
@@ -39,6 +43,11 @@ internal class Program
         builder.Services.AddScoped<ILogService, LogService>();
         builder.Services.AddScoped<IQuestionRepository>((serviceProvider) => new QuestionDapperRepository(connectionString));
         builder.Services.AddScoped<ILogRepository>((serviceProvider) => new LogDapperRepository(connectionString));
+
+        builder.Services.AddMediatR(configuration => {
+            configuration.RegisterServicesFromAssembly(typeof(QuestionCreateRequestDto).Assembly);
+        });
+        builder.Services.AddAutoMapper(typeof(Question_QuestionDto_Mapper).Assembly);
 
         var app = builder.Build();
 
