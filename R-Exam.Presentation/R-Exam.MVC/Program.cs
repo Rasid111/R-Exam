@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using R_Exam.Application.Mappers;
 using System.Reflection;
 
@@ -13,6 +14,9 @@ namespace R_Exam.MVC
             builder.Services.AddControllersWithViews();
             builder.Services.AddHttpClient();
             builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
+
+            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie();
 
             var app = builder.Build();
 
