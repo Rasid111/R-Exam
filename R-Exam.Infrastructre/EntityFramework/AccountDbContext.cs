@@ -9,8 +9,5 @@ using System.Threading.Tasks;
 
 namespace R_Exam.Infrastructre.EntityFramework
 {
-    public class AccountDbContext : IdentityDbContext<IdentityUser>
-    {
-        public AccountDbContext(DbContextOptions<AccountDbContext> options) : base(options) { }
-    }
+    public class AccountDbContext(DbContextOptions<AccountDbContext> options) : IdentityDbContext<IdentityUser>(options) { }
 }

@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>R_Exam.DependencyInjection</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\R-Exam.Application\R-Exam.Application.csproj" />
+    <ProjectReference Include="..\R-Exam.Domain\R-Exam.Domain.csproj" />
+    <ProjectReference Include="..\R-Exam.Infrastructre\R-Exam.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

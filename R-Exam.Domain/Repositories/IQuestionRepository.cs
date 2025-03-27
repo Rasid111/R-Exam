@@ -1,8 +1,6 @@
 ﻿using R_Exam.Domain.Models;
 
-#pragma warning disable IDE0130 // Пространство имен (namespace) не соответствует структуре папок.
-namespace R_Exam.Domain.Repositories
-#pragma warning restore IDE0130 // Пространство имен (namespace) не соответствует структуре папок.
+namespace R_Exam.Domain.Models
 {
     public interface IQuestionRepository
     {

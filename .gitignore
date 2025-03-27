@@ -3,6 +3,7 @@
 
 # Custom
 *.http
+Keys/
 
 # User-specific files
 *.suo
