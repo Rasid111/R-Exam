@@ -11,13 +11,12 @@ using System.Threading.Tasks;
 
 namespace R_Exam.Application.Handlers.Question
 {
-    internal class QuestionRemoveHandler(IQuestionService service, IMapper mapper) : IRequestHandler<QuestionRemoveRequestDto>
+    internal class QuestionDeleteHandler(IQuestionService service) : IRequestHandler<QuestionDeleteRequestDto>
     {
         public readonly IQuestionService service = service;
-        public readonly IMapper mapper = mapper;
-        public async Task Handle(QuestionRemoveRequestDto request, CancellationToken cancellationToken)
+        public async Task Handle(QuestionDeleteRequestDto request, CancellationToken cancellationToken)
         {
-            await service.Delete(request.Id);
+            await service.Delete(request);
         }
     }
 }

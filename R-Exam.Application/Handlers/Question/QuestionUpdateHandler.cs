@@ -11,15 +11,13 @@ using System.Threading.Tasks;
 
 namespace R_Exam.Application.Handlers.Question
 {
-    public class QuestionUpdateHandler(IQuestionService service, IMapper mapper) : IRequestHandler<QuestionUpdateRequestDto>
+    public class QuestionUpdateHandler(IQuestionService service) : IRequestHandler<QuestionUpdateRequestDto>
     {
         private readonly IQuestionService service = service;
-        private readonly IMapper mapper = mapper;
 
         public async Task Handle(QuestionUpdateRequestDto request, CancellationToken cancellationToken)
         {
-            var question = mapper.Map<Domain.Models.Question>(request);
-            await service.Update(question);
+            await service.Update(request);
         }
     }
 }

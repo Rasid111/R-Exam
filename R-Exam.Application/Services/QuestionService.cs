@@ -4,41 +4,56 @@ using R_Exam.Application.Services;
 using R_Exam.Domain.Repositories;
 using R_Exam.Application.Exceptions;
 using Microsoft.Data.SqlClient;
-
+using R_Exam.Application.Dtos.Question;
+using AutoMapper;
+using Azure.Core;
+using System.Data;
+using System.Linq;
+using MediatR;
 namespace R_Exam.Application.Services
 {
-    public class QuestionService(IQuestionRepository repository, IValidator<Question> validator) : IQuestionService
+    public class QuestionService(IQuestionRepository repository, IValidator<Question> validator, IMapper mapper) : IQuestionService
     {
         private readonly IQuestionRepository repository = repository;
         private readonly IValidator<Question> validator = validator;
+        private readonly IMapper mapper = mapper;
 
-        public async Task<int> Create(Question question)
+        public async Task<QuestionCreateResponseDto> Create(QuestionCreateRequestDto questionDto)
         {
+            var question = mapper.Map<Question>(questionDto);
             var validationResult = await validator.ValidateAsync(question);
             if (!validationResult.IsValid)
                 throw new ArgumentException(validationResult.Errors.First().ErrorMessage, validationResult.Errors.First().PropertyName);
             try
             {
                 int questionId = await repository.Create(question);
-                return questionId;
+                return new QuestionCreateResponseDto(questionId);
             }
-            catch (SqlException)
+            catch (SqlException ex)
             {
-                throw new ArgumentException("Question with this title already exists", nameof(question));
+                if (ex.Number == 2627)
+                {
+                    throw new DuplicateNameException($"Question with title \"{question.Title}\" already exists");
+                }
+                else throw;
             }
         }
-        public async Task<List<Question>> Get()
+        public async Task<List<QuestionGetResponseDto>> Get()
         {
-            var questions = repository.Get();
-            return await questions;
+            var questions = await repository.Get();
+            List<int> a = [1, 2, 3];
+            var questionsDto = questions.Select(question => mapper.Map<QuestionGetResponseDto>(question)).ToList();
+            return questionsDto;
         }
-        public async Task<Question> Get(int id)
+        public async Task<QuestionGetResponseDto> Get(QuestionGetRequestDto dto)
         {
-            var question = repository.Get(id);
-            return await question ?? throw new QuestionNotFoundException(nameof(id), "Question was not found");
+            var question = await repository.Get(dto.Id);
+            var questionDto = mapper.Map<QuestionGetResponseDto>(question);
+            return questionDto ?? throw new QuestionNotFoundException(nameof(dto.Id), "Question was not found");
         }
-        public async Task Update(Question question)
+        public async Task Update(QuestionUpdateRequestDto dto)
         {
+            var question = mapper.Map<Question>(dto);
             var validationResult = validator.Validate(question);
             if (!validationResult.IsValid)
                 throw new ArgumentException(validationResult.Errors.First().ErrorMessage, validationResult.Errors.First().PropertyName);
@@ -46,11 +61,11 @@ namespace R_Exam.Application.Services
             if (!resultStatus)
                 throw new QuestionNotFoundException(nameof(question.Id), "Question was not found");
         }
-        public async Task Delete(int id)
+        public async Task Delete(QuestionDeleteRequestDto dto)
         {
-            var resultStatus = await repository.Delete(id);
+            var resultStatus = await repository.Delete(dto.Id);
             if (!resultStatus)
-                throw new QuestionNotFoundException(nameof(id), "Question was not found");
+                throw new QuestionNotFoundException(nameof(dto.Id), "Question was not found");
         }
     }
 }

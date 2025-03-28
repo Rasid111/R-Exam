@@ -11,7 +11,7 @@ namespace R_Exam.Application.Handlers.User
 {
     internal class UserLogoutHandler(SignInManager<IdentityUser> signInManager) : IRequestHandler<UserLogoutRequestDto, UserLogoutResponseDto>
     {
-        SignInManager<IdentityUser> signInManager = signInManager;
+        private readonly SignInManager<IdentityUser> signInManager = signInManager;
 
         public async Task<UserLogoutResponseDto> Handle(UserLogoutRequestDto request, CancellationToken cancellationToken)
         {

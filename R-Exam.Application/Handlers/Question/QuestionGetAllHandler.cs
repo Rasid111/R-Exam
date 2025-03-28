@@ -5,16 +5,14 @@ using R_Exam.Application.Services;
 
 namespace R_Exam.Application.Handlers.Question
 {
-    internal class QuestionGetAllHandler(IQuestionService service, IMapper mapper) : IRequestHandler<QuestionGetAllRequestDto, List<QuestionGetResponseDto>>
+    internal class QuestionGetAllHandler(IQuestionService service) : IRequestHandler<QuestionGetAllRequestDto, List<QuestionGetResponseDto>>
     {
         private readonly IQuestionService service = service;
-        private readonly IMapper mapper = mapper;
 
         public async Task<List<QuestionGetResponseDto>> Handle(QuestionGetAllRequestDto request, CancellationToken cancellationToken)
         {
             var questions = await service.Get();
-            var questionsDto = questions.Select(question => mapper.Map<QuestionGetResponseDto>(question)).ToList();
-            return questionsDto;
+            return questions;
         }
     }
 }

@@ -25,10 +25,10 @@ namespace R_Exam.Presentation
             builder.Services.AddScoped<IQuestionService, QuestionService>();
             builder.Services.AddScoped<ILogService, LogService>();
             builder.Services.AddLogDapperRepository(connectionString);
-            builder.Services.AddQuestionDapperRepository(connectionString);
 
             builder.Services.AddR_ExamDbContext(connectionString);
-            builder.Services.AddQuestionEntityFrameworkRepository();
+            //builder.Services.AddQuestionEntityFrameworkRepository();
+            builder.Services.AddQuestionDapperRepository(connectionString);
 
             builder.Services.AddMediatR(configuration => {
                 configuration.RegisterServicesFromAssembly(typeof(QuestionCreateRequestDto).Assembly);

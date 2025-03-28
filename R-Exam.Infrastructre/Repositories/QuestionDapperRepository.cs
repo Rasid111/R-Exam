@@ -22,27 +22,16 @@ namespace R_Exam.Infrastructre.Repositories
         }
         public async Task<int> Create(Question question)
         {
-            try
-            {
-                using IDbConnection db = new SqlConnection(connectionString);
-                var sqlQuery = @"INSERT INTO Questions (Title, CorrectAnswerTitle) 
-                            VALUES(@Title, @CorrectAnswerTitle); 
-                            select scope_identity() as int;";
-                int questionId = (await db.QueryAsync<int>(sqlQuery, question)).First();
-                sqlQuery = @"INSERT INTO Answers (Title, QuestionId) 
-                        VALUES(@Title, @QuestionId)";
-                question.Answers.ForEach(answer => answer.QuestionId = questionId);
-                await db.ExecuteAsync(sqlQuery, question.Answers);
-                return questionId;
-            }
-            catch (SqlException ex)
-            {
-                if (ex.Number == 2627)
-                {
-                    throw new DuplicateNameException($"Question with title \"{question.Title}\" already exists");
-                }
-                else throw;
-            }
+            using IDbConnection db = new SqlConnection(connectionString);
+            var sqlQuery = @"INSERT INTO Questions (Title, CorrectAnswerTitle) 
+                        VALUES(@Title, @CorrectAnswerTitle); 
+                        select scope_identity() as int;";
+            int questionId = (await db.QueryAsync<int>(sqlQuery, question)).First();
+            sqlQuery = @"INSERT INTO Answers (Title, QuestionId) 
+                    VALUES(@Title, @QuestionId)";
+            question.Answers.ForEach(answer => answer.QuestionId = questionId);
+            await db.ExecuteAsync(sqlQuery, question.Answers);
+            return questionId;
         }
         public async Task<Question?> Get(int id)
         {

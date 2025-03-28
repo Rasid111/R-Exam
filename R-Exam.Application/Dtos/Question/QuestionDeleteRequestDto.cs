@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace R_Exam.Application.Dtos.Question
 {
-    public class QuestionRemoveRequestDto(int id) : IRequest
+    public class QuestionDeleteRequestDto(int id) : IRequest
     {
         public int Id { get; set; } = id;
     }

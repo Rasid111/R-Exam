@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using R_Exam.Application.Exceptions;
 using R_Exam.WebApi.Presentation.Responses;
 using System.Data;
@@ -33,6 +34,10 @@ namespace R_Exam.Presentation.Middlewares
                 HandleException(httpContext, ex.Message);
             }
             catch (QuestionNotFoundException ex)
+            {
+                HandleException(httpContext, ex.Message);
+            }
+            catch (ArgumentException ex)
             {
                 HandleException(httpContext, ex.Message);
             }

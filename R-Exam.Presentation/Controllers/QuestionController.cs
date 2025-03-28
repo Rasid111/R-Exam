@@ -1,14 +1,8 @@
 ﻿using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 using R_Exam.Application.Dtos.Question;
 using R_Exam.Presentation.Models;
-using System.Net;
-using System.Net.Http;
-using System.Text.Json;
-using System.Text;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace R_Exam.Presentation.Controllers
 {
@@ -41,17 +35,16 @@ namespace R_Exam.Presentation.Controllers
         [HttpGet]
         public ActionResult Create()
         {
+            if (!string.IsNullOrWhiteSpace((string?)TempData["ErrorMessage"]))
+            {
+                ViewData["ErrorMessage"] = TempData["ErrorMessage"];
+            }
             return View();
         }
 
         [HttpPost]
         public async Task<ActionResult> Create(QuestionCreateViewModel model)
         {
-            if (!string.IsNullOrWhiteSpace((string?)TempData["ErrorMessage"]))
-            {
-                ViewData["ErrorMessage"] = TempData["ErrorMessage"];
-                return View();
-            }
             if (ModelState.IsValid)
             {
                 var questionDto = mapper.Map<QuestionCreateRequestDto>(model);
