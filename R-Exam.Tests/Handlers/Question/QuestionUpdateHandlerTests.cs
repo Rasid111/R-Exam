@@ -2,39 +2,39 @@
 using Microsoft.Data.SqlClient;
 using Moq;
 using R_Exam.Application.Dtos.Question;
+using R_Exam.Application.Exceptions;
 using R_Exam.Application.Handlers.Question;
 using R_Exam.Application.Mappers;
 using R_Exam.Application.Services;
 using R_Exam.Application.Validators;
 using R_Exam.Domain.Models;
-using R_Exam.Presentation.Controllers;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace R_Exam.Tests.Handlers.Question
 {
-    public class QuestionCreateHandlerTests
+    public class QuestionUpdateHandlerTests
     {
-        [Theory]
-        [InlineData("1+1", "2", new[] { "1", "2", "3", "4" })]
-        public async Task Handle_PassCorrectQuestion_CreatedQuestionId(string title, string correctAnswerTitle, string[] answers)
+        [Fact]
+        public async Task Handle_PassCorrectQuestion_Void()
         {
-            var dto = new QuestionCreateRequestDto()
+
+            var dto = new QuestionUpdateRequestDto()
             {
-                Title = title,
-                CorrectAnswerTitle = correctAnswerTitle,
-                Answers = answers.ToList()
+                Id = 1,
+                Title = "1+1",
+                CorrectAnswerTitle = "2",
+                Answers = ["1", "2", "3", "4"]
             };
 
             var repositoryMock = new Mock<IQuestionRepository>();
-            repositoryMock.Setup(repo => repo.Create(It.IsAny<Domain.Models.Question>()))
-                .ReturnsAsync(1);
+            repositoryMock.Setup(repo => repo.Update(It.IsAny<Domain.Models.Question>()))
+                .ReturnsAsync(true);
 
-            QuestionCreateHandler handler = new QuestionCreateHandler(new QuestionService(
+            QuestionUpdateHandler handler = new QuestionUpdateHandler(new QuestionService(
                 repository: repositoryMock.Object,
                 validator: new QuestionValidator(),
                 mapper: new Mapper(new MapperConfiguration(cfg =>
@@ -43,22 +43,49 @@ namespace R_Exam.Tests.Handlers.Question
                 }))
             ));
 
-            var result = await handler.Handle(dto, CancellationToken.None);
-
-            Assert.Equal(1, result.Id);
+            await handler.Handle(dto, CancellationToken.None);
         }
-        [Theory]
-        [InlineData("1+1", "2", new[] { "1", "3", "4" })]
-        public async Task Handle_PassQuestionWithoutCorrectAnswer_ThrowsArgumentException(string title, string correctAnswerTitle, string[] answers)
+        [Fact]
+        public async Task Handle_RepositoryReturnsFalse_Void()
         {
-            var dto = new QuestionCreateRequestDto()
+
+            var dto = new QuestionUpdateRequestDto()
             {
-                Title = title,
-                CorrectAnswerTitle = correctAnswerTitle,
-                Answers = answers.ToList()
+                Id = 1,
+                Title = "1+1",
+                CorrectAnswerTitle = "2",
+                Answers = ["1", "2", "3", "4"]
             };
 
-            QuestionCreateHandler handler = new QuestionCreateHandler(new QuestionService(
+            var repositoryMock = new Mock<IQuestionRepository>();
+            repositoryMock.Setup(repo => repo.Update(It.IsAny<Domain.Models.Question>()))
+                .ReturnsAsync(false);
+
+            QuestionUpdateHandler handler = new QuestionUpdateHandler(new QuestionService(
+                repository: repositoryMock.Object,
+                validator: new QuestionValidator(),
+                mapper: new Mapper(new MapperConfiguration(cfg =>
+                {
+                    cfg.AddProfile<Question_QuestionDto_Mapper>();
+                }))
+            ));
+
+            var ex = await Assert.ThrowsAsync<QuestionNotFoundException>(async () => await handler.Handle(dto, CancellationToken.None));
+            Assert.Equal(nameof(dto.Id), ex.Key);
+        }
+        [Fact]
+        public async Task Handle_PassQuestionWithoutCorrectAnswer_ThrowsArgumentException()
+        {
+            var dto = new QuestionUpdateRequestDto()
+            {
+                Title = "1+1",
+                CorrectAnswerTitle = "2",
+                Answers = ["1", "3", "4"]
+            };
+
+            var repositoryMock = new Mock<IQuestionRepository>();
+
+            QuestionUpdateHandler handler = new QuestionUpdateHandler(new QuestionService(
                 repository: null!,
                 validator: new QuestionValidator(),
                 mapper: new Mapper(new MapperConfiguration(cfg =>
@@ -76,14 +103,15 @@ namespace R_Exam.Tests.Handlers.Question
         [InlineData("1+1", "2", null, nameof(Domain.Models.Question.Answers))]
         public async Task Handle_PassQuestionWithNullArguments_ThrowsArgumentException(string title, string correctAnswerTitle, string[] answers, string paramName)
         {
-            var dto = new QuestionCreateRequestDto()
+            var dto = new QuestionUpdateRequestDto()
             {
+                Id = 1,
                 Title = title,
                 CorrectAnswerTitle = correctAnswerTitle,
                 Answers = answers?.ToList()!
             };
 
-            QuestionCreateHandler handler = new QuestionCreateHandler(new QuestionService(
+            var handler = new QuestionUpdateHandler(new QuestionService(
                 repository: null!,
                 validator: new QuestionValidator(),
                 mapper: new Mapper(new MapperConfiguration(cfg =>
@@ -115,14 +143,15 @@ namespace R_Exam.Tests.Handlers.Question
             "Answers[0].Title")]
         public async Task Handle_PassQuestionWithIncorrectArgumentLengths_ThrowsArgumentException(string title, string correctAnswerTitle, string[] answers, string paramName)
         {
-            var dto = new QuestionCreateRequestDto()
+            var dto = new QuestionUpdateRequestDto()
             {
+                Id = 1,
                 Title = title,
                 CorrectAnswerTitle = correctAnswerTitle,
                 Answers = answers?.ToList()!
             };
 
-            QuestionCreateHandler handler = new QuestionCreateHandler(new QuestionService(
+            var handler = new QuestionUpdateHandler(new QuestionService(
                 repository: null!,
                 validator: new QuestionValidator(),
                 mapper: new Mapper(new MapperConfiguration(cfg =>
@@ -137,11 +166,12 @@ namespace R_Exam.Tests.Handlers.Question
         [Fact]
         public async Task Handle_PassQuestionWithDublicateTitle_ThrowsArgumentException()
         {
-            var dto = new QuestionCreateRequestDto()
+            var dto = new QuestionUpdateRequestDto()
             {
+                Id = 1,
                 Title = "1+1",
                 CorrectAnswerTitle = "2",
-                Answers = (new string[] { "1",  "2", "3", "4" }).ToList()
+                Answers = (new string[] { "1", "2", "3", "4" }).ToList()
             };
 
             var repositoryMock = new Mock<IQuestionRepository>();
@@ -158,10 +188,10 @@ namespace R_Exam.Tests.Handlers.Question
                 //exception.Number = 2627;
             }
 
-            repositoryMock.Setup(repo => repo.Create(It.Is<Domain.Models.Question>(question => question.Title == "1+1")))
+            repositoryMock.Setup(repo => repo.Update(It.Is<Domain.Models.Question>(question => question.Title == "1+1")))
                 .ThrowsAsync(exception);
 
-            QuestionCreateHandler handler = new QuestionCreateHandler(new QuestionService(
+            var handler = new QuestionUpdateHandler(new QuestionService(
                 repository: repositoryMock.Object,
                 validator: new QuestionValidator(),
                 mapper: new Mapper(new MapperConfiguration(cfg =>
@@ -169,7 +199,7 @@ namespace R_Exam.Tests.Handlers.Question
                     cfg.AddProfile<Question_QuestionDto_Mapper>();
                 }))
             ));
-
+            
             {
                 var ex = await Assert.ThrowsAsync<SqlException>(async () => await handler.Handle(dto, CancellationToken.None));
                 //var ex = await Assert.ThrowsAsync<DuplicateNameException>(async () => await handler.Handle(dto, CancellationToken.None));

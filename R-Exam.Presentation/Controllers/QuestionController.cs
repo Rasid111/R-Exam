@@ -33,7 +33,7 @@ namespace R_Exam.Presentation.Controllers
             return View(questions);
         }
         [HttpGet]
-        public ActionResult Create()
+        public ActionResult Update()
         {
             if (!string.IsNullOrWhiteSpace((string?)TempData["ErrorMessage"]))
             {
@@ -43,13 +43,13 @@ namespace R_Exam.Presentation.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> Create(QuestionCreateViewModel model)
+        public async Task<ActionResult> Update(QuestionUpdateViewModel model)
         {
             if (ModelState.IsValid)
             {
-                var questionDto = mapper.Map<QuestionCreateRequestDto>(model);
-                var response = await this.sender.Send(questionDto);
-                TempData["SuccessMessage"] = $"Product was created with id {response.Id}";
+                var questionDto = mapper.Map<QuestionUpdateRequestDto>(model);
+                await this.sender.Send(questionDto);
+                TempData["SuccessMessage"] = $"Product with id {model.Id} was updated";
                 return RedirectToAction(nameof(HomeController.Index), "Home");
             }
             return View(model);

@@ -17,8 +17,7 @@ namespace R_Exam.Application.Handlers.Question
 
         public async Task<QuestionCreateResponseDto> Handle(QuestionCreateRequestDto request, CancellationToken cancellationToken)
         {
-            var questionId = await service.Create(request);
-            var response = new QuestionCreateResponseDto(questionId.Id);
+            var response = await service.Create(request);
             return response;
         }
     }

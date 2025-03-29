@@ -11,6 +11,8 @@ namespace R_Exam.Presentation.Mappers
             CreateMap<QuestionCreateViewModel, QuestionCreateRequestDto>()
                 .ForMember(dest => dest.Answers, config => config.MapFrom(src => src.Answers.Split(new string[] { "\r\n", "\r" }, StringSplitOptions.None)));
             CreateMap<QuestionGetResponseDto, QuestionDetailsViewModel>();
+            CreateMap<QuestionUpdateViewModel, QuestionUpdateRequestDto>()
+                .ForMember(dest => dest.Answers, config => config.MapFrom(src => src.Answers.Split(new string[] { "\r\n", "\r" }, StringSplitOptions.None)));
         }
     }
 }

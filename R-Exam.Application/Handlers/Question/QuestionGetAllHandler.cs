@@ -5,7 +5,7 @@ using R_Exam.Application.Services;
 
 namespace R_Exam.Application.Handlers.Question
 {
-    internal class QuestionGetAllHandler(IQuestionService service) : IRequestHandler<QuestionGetAllRequestDto, List<QuestionGetResponseDto>>
+    public class QuestionGetAllHandler(IQuestionService service) : IRequestHandler<QuestionGetAllRequestDto, List<QuestionGetResponseDto>>
     {
         private readonly IQuestionService service = service;
 

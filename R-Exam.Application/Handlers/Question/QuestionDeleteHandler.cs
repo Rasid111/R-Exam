@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace R_Exam.Application.Handlers.Question
 {
-    internal class QuestionDeleteHandler(IQuestionService service) : IRequestHandler<QuestionDeleteRequestDto>
+    public class QuestionDeleteHandler(IQuestionService service) : IRequestHandler<QuestionDeleteRequestDto>
     {
         public readonly IQuestionService service = service;
         public async Task Handle(QuestionDeleteRequestDto request, CancellationToken cancellationToken)

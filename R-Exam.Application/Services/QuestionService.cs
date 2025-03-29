@@ -41,7 +41,6 @@ namespace R_Exam.Application.Services
         public async Task<List<QuestionGetResponseDto>> Get()
         {
             var questions = await repository.Get();
-            List<int> a = [1, 2, 3];
             var questionsDto = questions.Select(question => mapper.Map<QuestionGetResponseDto>(question)).ToList();
             return questionsDto;
         }
@@ -57,9 +56,20 @@ namespace R_Exam.Application.Services
             var validationResult = validator.Validate(question);
             if (!validationResult.IsValid)
                 throw new ArgumentException(validationResult.Errors.First().ErrorMessage, validationResult.Errors.First().PropertyName);
-            var resultStatus = await repository.Update(question);
-            if (!resultStatus)
-                throw new QuestionNotFoundException(nameof(question.Id), "Question was not found");
+            try
+            {
+                var resultStatus = await repository.Update(question);
+                if (!resultStatus)
+                    throw new QuestionNotFoundException(nameof(dto.Id), "Question was not found");
+            }
+            catch (SqlException ex)
+            {
+                if (ex.Number == 2627)
+                {
+                    throw new DuplicateNameException($"Question with title \"{question.Title}\" already exists");
+                }
+                else throw;
+            }
         }
         public async Task Delete(QuestionDeleteRequestDto dto)
         {
