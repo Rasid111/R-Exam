@@ -7,14 +7,23 @@
 <div>
     @if (Model.AvatarPath != null)
     {
-        <img src="avatar?avatarPath=@Model.AvatarPath" alt="Avatar" width="200" />
+        <img src="account/avatar?avatarPath=@Model.AvatarPath" alt="Avatar" width="200" />
     }
     <p>
-        @Model.Name
+        Name: @Model.Name
     </p>
     <p>
-        @Model.Email
+        Email: @Model.Email
     </p>
+    <p>Roles:</p>
+    <ul>
+        @foreach (var role in Model.Roles)
+        {
+            <li>
+                @role
+            </li>
+        }
+    </ul>
     <form asp-controller="Account" asp-action="Logout" method="get">
         <button type="submit" class="btn btn-danger">Logout</button>
     </form>

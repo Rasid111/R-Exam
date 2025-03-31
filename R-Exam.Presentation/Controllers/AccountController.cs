@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
+using Azure;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using R_Exam.Application.Dtos.Question;
 using R_Exam.Application.Dtos.User;
 using R_Exam.Presentation.Models;
@@ -30,7 +32,8 @@ namespace R_Exam.Presentation.Controllers
             {
                 Email = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Email)?.Value!,
                 Name = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Name)?.Value!,
-                AvatarPath = User.Claims.FirstOrDefault(claim => claim.Type == "AvatarPath")?.Value
+                AvatarPath = User.Claims.FirstOrDefault(claim => claim.Type == "AvatarPath")?.Value,
+                Roles = User.Claims.Where(claim => claim.Type == ClaimTypes.Role).Select(claim => claim.Value).ToList(),
             };
             return View(user);
         }
@@ -49,13 +52,10 @@ namespace R_Exam.Presentation.Controllers
         [HttpGet]
         public IActionResult Register()
         {
-            var errorMessage = TempData["ErrorMessage"];
-
-            if (errorMessage != null)
+            if (User.Identity?.IsAuthenticated ?? false)
             {
-                ModelState.AddModelError("All", errorMessage.ToString()!);
+                return RedirectToAction(nameof(Index));
             }
-
             return base.View();
         }
         [HttpPost]
@@ -72,16 +72,13 @@ namespace R_Exam.Presentation.Controllers
         [HttpGet]
         public IActionResult Login(string? returnUrl)
         {
-            var errorMessage = TempData["ErrorMessage"];
-
+            if (User.Identity?.IsAuthenticated ?? false)
+            {
+                return RedirectToAction(nameof(Index));
+            }
             if (string.IsNullOrWhiteSpace(returnUrl) == false)
             {
                 ViewData["returnUrl"] = returnUrl;
-            }
-
-            if (errorMessage is not null)
-            {
-                ModelState.AddModelError("All", errorMessage.ToString()!);
             }
             return base.View();
         }
@@ -107,6 +104,11 @@ namespace R_Exam.Presentation.Controllers
         public async Task<IActionResult> Logout()
         {
             await sender.Send(new UserLogoutRequestDto());
+            return base.RedirectToAction(actionName: "Index", controllerName: "Home");
+        }
+        public IActionResult AccessDenied()
+        {
+            TempData["ErrorMessage"] = "Forbidden";
             return base.RedirectToAction(actionName: "Index", controllerName: "Home");
         }
     }

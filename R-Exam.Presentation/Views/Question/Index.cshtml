@@ -1,18 +1,53 @@
 ﻿@model List<QuestionDetailsViewModel>?
-
-@if (Model == null)
-{
-    <div class="alert alert-danger">
-        @ViewData["ErrorMessage"]
-    </div>
+@{
+    bool isAdmin = User.IsInRole("Admin");
 }
-else
+@if (isAdmin)
 {
-    @foreach (var question in Model)
-    {
-        <div>
-            <span>Id @question.Id</span>
-            <a class="navbar-brand" asp-area="" asp-controller="Question" asp-action="Details" asp-route-id=@question.Id>@question.Title</a>
-        </div>
-    }
+    <a asp-area="" asp-controller="Question" asp-action="Create" class="btn btn-primary mb-3">Create new question</a>
+}
+
+@if (Model is not null)
+{
+    <div class="container">
+        @foreach (var question in Model)
+        {
+            <div class="row g-1 mt-1">
+                <div class="col-1">
+                    <span>Id @question.Id</span>
+                </div>
+                <div class="col-5">
+                    <a class="navbar-brand" asp-area="" asp-controller="Question" asp-action="Details" asp-route-id=@question.Id>@question.Title</a>
+                </div>
+                @if (isAdmin)
+                {
+                    <div class="modal fade" id="DeleteModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Delete</h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    Delete question @question.Id?
+                                </div>
+                                <div class="modal-footer">
+                                    <a class="btn btn-danger" asp-area="" asp-controller="Question" asp-action="Delete" asp-route-id=@question.Id>Delete</a>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-1 offset-4">
+                        <a asp-area="" asp-controller="Question" asp-action="Update" asp-route-id=@question.Id class="btn btn-primary">Update</a>
+                    </div>
+                    <div class="col-1">
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#DeleteModal">
+                            Delete
+                        </button>
+                    </div>
+                }
+            </div>
+        }
+    </div>
 }
