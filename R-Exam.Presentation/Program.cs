@@ -1,10 +1,13 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Protocols.Configuration;
 using R_Exam.Application.Dtos.Question;
 using R_Exam.Application.Mappers;
 using R_Exam.Application.Services;
 using R_Exam.DependencyInjection;
+using R_Exam.Domain.Enums;
+using R_Exam.Infrastructre.EntityFramework;
 using R_Exam.Presentation.Mappers;
 using R_Exam.Presentation.Middlewares;
 
@@ -12,7 +15,7 @@ namespace R_Exam.Presentation
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -46,6 +49,34 @@ namespace R_Exam.Presentation
 
             var app = builder.Build();
 
+            var serviceScopeFactory = app.Services.GetRequiredService<IServiceScopeFactory>();
+            using (var scope = serviceScopeFactory.CreateScope())
+                {
+                    var r_ExamDbContext = scope.ServiceProvider.GetService<R_ExamDbContext>();
+                    r_ExamDbContext.Database.Migrate();
+                    var accountDbContext = scope.ServiceProvider.GetService<AccountDbContext>();
+                    accountDbContext.Database.Migrate();
+
+                var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+                
+                foreach (var roleName in Enum.GetNames(typeof(Roles)))
+                {
+                    if (!await roleManager.RoleExistsAsync(roleName))
+                    {
+                        await roleManager.CreateAsync(new IdentityRole(roleName));
+                    }
+                }
+
+                var email = "admin@admin";
+                var result = await userManager.FindByEmailAsync(email);
+                if (result == null)
+                {
+                    var admin = new IdentityUser { UserName = "admin", Email = email };
+                    await userManager.CreateAsync(admin, "Admin123!");
+                    await userManager.AddToRoleAsync(admin, nameof(Roles.Admin));
+                }
+            }
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");

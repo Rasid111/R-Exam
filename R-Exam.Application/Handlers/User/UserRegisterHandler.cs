@@ -36,8 +36,8 @@ namespace R_Exam.Application.Handlers.User
                 var createdUser = await userManager.FindByEmailAsync(user.Email);
 
                 await userManager.AddToRolesAsync(createdUser!, [
-                    nameof(Roles.Admin),
-                    //nameof(Roles.User),
+                    // nameof(Roles.Admin),
+                    nameof(Roles.User),
                 ]);
 
                 if (request.Avatar != null)

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using R_Exam.Application.Validators;
+using R_Exam.Domain.Enums;
 using R_Exam.Domain.Models;
 using R_Exam.Domain.Repositories;
 using R_Exam.Infrastructre.EntityFramework;
@@ -60,6 +61,27 @@ namespace R_Exam.DependencyInjection
             })
                 .AddEntityFrameworkStores<AccountDbContext>();
             return services;
+        }
+        public static async Task AddRolesAndDefaultAdmin(RoleManager<IdentityRole> roleManager, UserManager<IdentityUser> userManager)
+        {
+            string[] roles = Enum.GetNames(typeof(Roles));
+
+            foreach (var role in roles)
+            {
+                if (!await roleManager.RoleExistsAsync(role))
+                {
+                    await roleManager.CreateAsync(new IdentityRole(role));
+                }
+            }
+
+            var email = "admin@admin";
+            var result = await userManager.FindByEmailAsync(email);
+            if (result == null)
+            {
+                var admin = new IdentityUser { UserName = "admin", Email = email };
+                await userManager.CreateAsync(admin, "Admin123!");
+                await userManager.AddToRoleAsync(admin, nameof(Roles.Admin));
+            }
         }
     }
 }
