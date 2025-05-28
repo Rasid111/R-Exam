@@ -1,6 +1,0 @@
-@R_Exam_HostAddress = http://localhost:5266
-
-GET {{R_Exam_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
